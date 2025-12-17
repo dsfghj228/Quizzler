@@ -1,13 +1,27 @@
 
 
+using System.Text.Json.Serialization;
+using Back_Quiz.Data;
+using Back_Quiz.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonNumberEnumConverter<Difficulty>());
+    });
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo {Title = "Quiz", Version = "v1"});
+});
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"));
 });
 
 var app = builder.Build();
