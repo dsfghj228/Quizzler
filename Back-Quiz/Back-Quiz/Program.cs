@@ -1,12 +1,14 @@
-
-
 using System.Text.Json.Serialization;
 using Back_Quiz.Data;
 using Back_Quiz.Enums;
+using Back_Quiz.FluentValidation;
 using Back_Quiz.Interfaces;
 using Back_Quiz.Services;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Hellang.Middleware.ProblemDetails;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -35,6 +37,14 @@ builder.Services.AddHangfire(config =>
         c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("PostgreSQL"))));
 builder.Services.AddHangfireServer();
 
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddMediatR(cfg => 
+{
+    cfg.RegisterServicesFromAssemblyContaining<Program>();
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+});
+
 builder.Services.AddScoped<IImportDataService, ImportDataService>();
 
 var app = builder.Build();
@@ -56,6 +66,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseProblemDetails();
 
 app.MapControllers();
 
