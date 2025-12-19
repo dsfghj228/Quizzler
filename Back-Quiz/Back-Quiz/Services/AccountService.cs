@@ -1,3 +1,4 @@
+using Back_Quiz.Dtos.Account;
 using Back_Quiz.Exceptions;
 using Back_Quiz.Interfaces;
 using Back_Quiz.MediatR.Commands;
@@ -22,5 +23,22 @@ public class AccountService : IAccountService
         {
             throw new CustomExceptions.UserAlreadyExistsException();
         }
+    }
+
+    public async Task<AppUser> DoesUserExist(LoginUserCommand command)
+    {
+        var user = _userManager.Users.FirstOrDefault(u => u.UserName == command.Username);
+        
+        if (user == null)
+        {
+            throw new CustomExceptions.UnauthorizedUsernameException();
+        }
+        
+        if(!await _userManager.CheckPasswordAsync(user, command.Password))
+        {
+            throw new CustomExceptions.UnauthorizedPasswordException();
+        }
+        
+        return user;
     }
 }

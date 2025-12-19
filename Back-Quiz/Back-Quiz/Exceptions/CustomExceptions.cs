@@ -28,4 +28,14 @@ public abstract class CustomExceptions: Exception
         "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         "Внутренняя ошибка сервера",
         $"Произошла непредвиденная ошибка на сервере: @{errors}");
+    
+    public class UnauthorizedUsernameException() : CustomExceptions(HttpStatusCode.Unauthorized,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Ошибка авторизации",
+        "При попытке авторизации произошла ошибка. Пользователя с таким username не существует");
+    
+    public class UnauthorizedPasswordException() : CustomExceptions(HttpStatusCode.Unauthorized,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Ошибка авторизации",
+        "При попытке авторизации произошла ошибка. Неверный пароль");
 }
