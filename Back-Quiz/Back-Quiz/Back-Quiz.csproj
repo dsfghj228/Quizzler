@@ -31,8 +31,4 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="MediatR\Queries\" />
-    </ItemGroup>
-
 </Project>

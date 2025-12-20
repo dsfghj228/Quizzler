@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Back_Quiz.Dtos.Quiz;
 using Back_Quiz.Enums;
 using Back_Quiz.MediatR.Commands;
+using Back_Quiz.MediatR.Queries;
 using Back_Quiz.Quiz;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,24 @@ public class QuizController : ControllerBase
         };
         
         var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+    
+    [Authorize]
+    [HttpGet("{sessionId}/current")]
+    public async Task<IActionResult> GetCurrentQuestion([FromRoute] string sessionId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Unauthorized();
+        
+        var query = new GetCurrentQuestionQuery
+        {
+            SessionId = sessionId,
+            UserId = userId
+        };
+        
+        var result = await _mediator.Send(query);
         return Ok(result);
     }
 }

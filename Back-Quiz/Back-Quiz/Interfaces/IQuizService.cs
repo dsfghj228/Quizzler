@@ -7,4 +7,5 @@ namespace Back_Quiz.Interfaces;
 public interface IQuizService
 {
     Task<StartQuizResponse> CreateQuizAsync(string Category, Difficulty Difficulty, int NumberOfQuestions, string UserId);
+    Task<StartQuizResponse> GetCurrentQuestionAsync(string sessionId, string userId);
 }

@@ -75,4 +75,46 @@ public class QuizService : IQuizService
             Question = questionDto
         };
     }
+
+    public async Task<StartQuizResponse> GetCurrentQuestionAsync(string sessionId, string userId)
+    {
+        var session = await _redisService.GetAsync<QuizSession>($"quiz:session:{sessionId}");
+        
+        if (session == null || session.UserId != userId)
+        {
+            throw new Exception("Invalid session or user.");
+        }
+        
+        if (session.CurrentIndex < 0 || session.CurrentIndex >= session.QuestionIds.Count)
+        {
+            throw new InvalidOperationException("Quiz is already completed.");
+        }
+        
+        var currentQuestionId = session.QuestionIds[session.CurrentIndex];
+        var currentQuestion = await _context.Questions
+            .Include(q => q.Options)
+            .FirstOrDefaultAsync(q => q.Id == currentQuestionId);
+        
+        if (currentQuestion == null)
+        {
+            throw new InvalidOperationException("Question not found.");
+        }
+        
+        var questionDto = new QuestionDto
+        {
+            Id = currentQuestion.Id,
+            Text = currentQuestion.Text,
+            Options = currentQuestion.Options.Select(o => new QuestionOptionDto
+            {
+                Id = o.Id,
+                Text = o.Text
+            }).ToList()
+        };
+
+        return new StartQuizResponse
+        {
+            SessionId = sessionId,
+            Question = questionDto
+        };
+    }
 }
