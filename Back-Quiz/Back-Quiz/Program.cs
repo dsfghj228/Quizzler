@@ -30,32 +30,7 @@ builder.Services.AddControllers()
 builder.Services.AddProblemDetails(options =>
 {
     options.IncludeExceptionDetails = (_, _) => false;
-    
-    options.Map<CustomExceptions.UserAlreadyExistsException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.InternalServerErrorException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.UnauthorizedUsernameException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.UnauthorizedPasswordException>(ex => new ProblemDetails
+    options.Map<CustomExceptions>(ex => new ProblemDetails
     {
         Type = ex.Type,
         Title = ex.Title,
@@ -182,6 +157,7 @@ app.UseAuthorization();
 
 app.UseProblemDetails();
 app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 

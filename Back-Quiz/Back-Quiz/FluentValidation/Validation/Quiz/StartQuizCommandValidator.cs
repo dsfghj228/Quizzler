@@ -9,7 +9,7 @@ public class StartQuizCommandValidator : AbstractValidator<StartQuizCommand>
     {
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.Category).NotEmpty();
-        RuleFor(x => x.Difficulty).IsInEnum().NotEmpty();
+        RuleFor(x => x.Difficulty).IsInEnum();
         RuleFor(x => x.NumberOfQuestions).GreaterThan(0).LessThanOrEqualTo(30);
     }
 }
