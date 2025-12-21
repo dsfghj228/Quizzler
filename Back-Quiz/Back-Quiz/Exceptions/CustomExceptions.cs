@@ -38,4 +38,24 @@ public abstract class CustomExceptions: Exception
         "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         "Authorization error",
         "An error occurred while trying to log in. Wrong password");
+    
+    public class BusinessRuleViolationException() : CustomExceptions(HttpStatusCode.Conflict,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Business Rule Violation",
+        "Not enough questions available for the selected category and difficulty.");
+    
+    public class AccessDeniedException() : CustomExceptions(HttpStatusCode.Forbidden,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Access Denied",
+        "Invalid session or user.");
+    
+    public class QuizAlreadyCompletedException() : CustomExceptions(HttpStatusCode.Conflict,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Quiz Already Completed",
+        "Quiz is already completed.");
+    
+    public class QuestionNotFoundException(Guid id) : CustomExceptions(HttpStatusCode.NotFound,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Question Not Found",
+        $"Question with ID @{id} was not found.");
 }

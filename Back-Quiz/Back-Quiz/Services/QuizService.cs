@@ -1,6 +1,7 @@
 using Back_Quiz.Data;
 using Back_Quiz.Dtos.Quiz;
 using Back_Quiz.Enums;
+using Back_Quiz.Exceptions;
 using Back_Quiz.Interfaces;
 using Back_Quiz.Quiz;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ public class QuizService : IQuizService
         
         if(questionsIds.Count < NumberOfQuestions)
         {
-            throw new Exception("Not enough questions available for the selected category and difficulty.");
+            throw new CustomExceptions.BusinessRuleViolationException();
         }
         
         var sessionId = Guid.NewGuid().ToString();
@@ -82,12 +83,12 @@ public class QuizService : IQuizService
         
         if (session == null || session.UserId != userId)
         {
-            throw new Exception("Invalid session or user.");
+            throw new CustomExceptions.AccessDeniedException();
         }
         
         if (session.CurrentIndex < 0 || session.CurrentIndex >= session.QuestionIds.Count)
         {
-            throw new InvalidOperationException("Quiz is already completed.");
+            throw new CustomExceptions.QuizAlreadyCompletedException();
         }
         
         var currentQuestionId = session.QuestionIds[session.CurrentIndex];
@@ -97,7 +98,7 @@ public class QuizService : IQuizService
         
         if (currentQuestion == null)
         {
-            throw new InvalidOperationException("Question not found.");
+            throw new CustomExceptions.QuestionNotFoundException(currentQuestionId);
         }
         
         var questionDto = new QuestionDto

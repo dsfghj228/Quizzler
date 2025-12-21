@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Back_Quiz.Dtos.Quiz;
 using Back_Quiz.Enums;
+using Back_Quiz.Exceptions;
 using Back_Quiz.MediatR.Commands;
 using Back_Quiz.MediatR.Queries;
 using Back_Quiz.Quiz;
@@ -27,7 +28,7 @@ public class QuizController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
-            return Unauthorized();
+            throw new CustomExceptions.UnauthorizedUsernameException();
         
         var command = new StartQuizCommand
         {
@@ -47,7 +48,7 @@ public class QuizController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
-            return Unauthorized();
+            throw new CustomExceptions.UnauthorizedUsernameException();
         
         var query = new GetCurrentQuestionQuery
         {
