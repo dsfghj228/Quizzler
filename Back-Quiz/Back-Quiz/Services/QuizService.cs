@@ -47,7 +47,8 @@ public class QuizService : IQuizService
             QuestionIds = questionsIds,
             CurrentIndex = 0,
             Answers = new List<UserAnswer>(),
-            StartedAt = DateTime.UtcNow
+            StartedAt = DateTime.UtcNow,
+            TimeLimitSeconds = 30 * 60
         };
 
         await _redisService.SetAsync(
@@ -117,5 +118,110 @@ public class QuizService : IQuizService
             SessionId = sessionId,
             Question = questionDto
         };
+    }
+
+    public async Task<StartQuizResponse> MakeMoveAsync(string sessionId, string userId, Guid selectedOptionId)
+    {
+        var lockKey = $"quiz:session:{sessionId}:lock";
+        var sessionKey = $"quiz:session:{sessionId}";
+        var token = await _redisService.AcquireLockAsync(lockKey, TimeSpan.FromSeconds(60));
+        if (token == null)
+        {
+            throw new CustomExceptions.ConcurrentAccessException();
+        }
+        
+        try
+        {
+            var session = await _redisService.GetAsync<QuizSession>(sessionKey);
+            if (session == null || session.UserId != userId)
+            {
+                throw new CustomExceptions.AccessDeniedException();
+            }
+
+            if (session.CurrentIndex < 0 || session.CurrentIndex >= session.QuestionIds.Count)
+            {
+                throw new CustomExceptions.QuizAlreadyCompletedException();
+            }
+
+            var currentQuestionId = session.QuestionIds[session.CurrentIndex];
+            if (session.Answers.Any(a => a.QuestionId == currentQuestionId))
+            {
+                throw new CustomExceptions.QuestionAlreadyAnsweredException(currentQuestionId);
+            }
+
+            var question = await _context.Questions
+                .Include(q => q.Options)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(q => q.Id == currentQuestionId);
+
+            if (question == null)
+            {
+                throw new CustomExceptions.QuestionNotFoundException(currentQuestionId);
+            }
+
+            if (question.Options.All(o => o.Id != selectedOptionId))
+            {
+                throw new CustomExceptions.InvalidOptionException(selectedOptionId);
+            }
+            
+            var expiresAt = session.StartedAt.AddSeconds(session.TimeLimitSeconds);
+
+            var ttl = expiresAt - DateTime.UtcNow;
+            if (ttl < TimeSpan.Zero)
+            {
+                throw new CustomExceptions.SessionExpiredException(sessionId);
+            }
+
+            session.Answers.Add(new UserAnswer
+            {
+                QuestionId = currentQuestionId,
+                SelectedOptionId = selectedOptionId
+            });
+
+            session.CurrentIndex++;
+
+            await _redisService.SetAsync(sessionKey, session, ttl);
+
+            if (session.CurrentIndex >= session.QuestionIds.Count)
+            {
+                return new StartQuizResponse
+                {
+                    SessionId = sessionId,
+                    Question = null
+                };
+            }
+
+            var nextQuestionId = session.QuestionIds[session.CurrentIndex];
+            var nextQuestion = await _context.Questions
+                .Include(q => q.Options)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(q => q.Id == nextQuestionId);
+
+            if (nextQuestion == null)
+            {
+                throw new CustomExceptions.QuestionNotFoundException(nextQuestionId);
+            }
+
+            var nextQuestionDto = new QuestionDto
+            {
+                Id = nextQuestion.Id,
+                Text = nextQuestion.Text,
+                Options = nextQuestion.Options.Select(o => new QuestionOptionDto
+                {
+                    Id = o.Id,
+                    Text = o.Text
+                }).ToList()
+            };
+
+            return new StartQuizResponse
+            {
+                SessionId = sessionId,
+                Question = nextQuestionDto
+            };
+        }
+        finally
+        {
+            await _redisService.ReleaseLockAsync(lockKey, token);
+        }
     }
 }

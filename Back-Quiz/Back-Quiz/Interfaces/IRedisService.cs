@@ -6,4 +6,6 @@ public interface IRedisService
     Task<T?> GetAsync<T>(string key);
     Task RemoveAsync(string key);
     Task<bool> ExistsAsync(string key);
+    Task<string?> AcquireLockAsync(string key, TimeSpan ttl);
+    Task<bool> ReleaseLockAsync(string key, string token);
 }

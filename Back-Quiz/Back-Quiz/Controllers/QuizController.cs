@@ -59,4 +59,23 @@ public class QuizController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+    
+    [Authorize]
+    [HttpPost("{sessionId}/answer")]
+    public async Task<IActionResult> MakeMove([FromRoute] string sessionId, [FromBody] Guid selectedOption)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            throw new CustomExceptions.UnauthorizedUsernameException();
+        
+        var command = new MakeMoveCommand
+        {
+            SessionId = sessionId,
+            UserId = userId,
+            SelectedOptionId = selectedOption
+        };
+        
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
 }

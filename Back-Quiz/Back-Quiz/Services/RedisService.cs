@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using Back_Quiz.Interfaces;
 using StackExchange.Redis;
@@ -38,5 +39,19 @@ public class RedisService : IRedisService
     public async Task<bool> ExistsAsync(string key)
     {
         return await _db.KeyExistsAsync(key);
+    }
+
+    public async Task<string?> AcquireLockAsync(string key, TimeSpan ttl)
+    {
+        var bytes = RandomNumberGenerator.GetBytes(16);
+        var token = Convert.ToBase64String(bytes);
+        
+        var acquired = await _db.LockTakeAsync(key, token, ttl);
+        return acquired ? token : null;
+    }
+
+    public async Task<bool> ReleaseLockAsync(string key, string token)
+    {
+        return await _db.LockReleaseAsync(key, token);
     }
 }

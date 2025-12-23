@@ -58,4 +58,24 @@ public abstract class CustomExceptions: Exception
         "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         "Question Not Found",
         $"Question with ID @{id} was not found.");
+    
+    public class SessionExpiredException(string id) : CustomExceptions(HttpStatusCode.BadRequest,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Session Expired",
+        $"Session with ID @{id} expired.");
+    
+    public class QuestionAlreadyAnsweredException(Guid id) : CustomExceptions(HttpStatusCode.BadRequest,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Question Already Answered",
+        $"Question with ID @{id} already answered.");
+    
+    public class InvalidOptionException(Guid id) : CustomExceptions(HttpStatusCode.BadRequest,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Invalid Option",
+        $"Option with ID @{id} is not valid for the current question.");
+    
+    public class ConcurrentAccessException() : CustomExceptions(HttpStatusCode.Conflict,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Concurrent Access",
+        "The request conflicts with an ongoing operation on the same resource. Please try again.");
 }
