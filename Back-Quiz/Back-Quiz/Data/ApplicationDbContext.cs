@@ -12,19 +12,12 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionOption> QuestionOptions { get; set; }
-    public DbSet<QuizTemplate> QuizTemplates { get; set; }
     public DbSet<QuizResult> QuizResults { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         
-        builder.Entity<QuizResult>()
-            .HasOne(q => q.QuizTemplate)
-            .WithMany()
-            .HasForeignKey(q => q.QuizTemplateId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.Entity<Question>()
             .HasMany(q => q.Options)
             .WithOne(o => o.Question)

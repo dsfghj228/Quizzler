@@ -13,6 +13,7 @@ namespace Back_Quiz.Controllers;
 
 [ApiController]
 [Route("api/quiz")]
+[Authorize]
 public class QuizController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -22,7 +23,6 @@ public class QuizController : ControllerBase
         _mediator = mediator;
     }
     
-    [Authorize]
     [HttpPost("start")]
     public async Task<IActionResult> StartQuiz([FromBody] StartQuizRequestDto quiz)
     {
@@ -42,7 +42,6 @@ public class QuizController : ControllerBase
         return Ok(result);
     }
     
-    [Authorize]
     [HttpGet("{sessionId}/current")]
     public async Task<IActionResult> GetCurrentQuestion([FromRoute] string sessionId)
     {
@@ -60,7 +59,6 @@ public class QuizController : ControllerBase
         return Ok(result);
     }
     
-    [Authorize]
     [HttpPost("{sessionId}/answer")]
     public async Task<IActionResult> MakeMove([FromRoute] string sessionId, [FromBody] Guid selectedOption)
     {
@@ -73,6 +71,23 @@ public class QuizController : ControllerBase
             SessionId = sessionId,
             UserId = userId,
             SelectedOptionId = selectedOption
+        };
+        
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+    
+    [HttpPost("{sessionId}/finish")]
+    public async Task<IActionResult> FinishQuiz([FromRoute] string sessionId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            throw new CustomExceptions.UnauthorizedUsernameException();
+        
+        var command = new FinishQuizCommand
+        {
+            SessionId = sessionId,
+            UserId = userId
         };
         
         var result = await _mediator.Send(command);

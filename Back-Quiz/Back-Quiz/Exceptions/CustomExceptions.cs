@@ -78,4 +78,9 @@ public abstract class CustomExceptions: Exception
         "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         "Concurrent Access",
         "The request conflicts with an ongoing operation on the same resource. Please try again.");
+    
+    public class QuizIsNotCompletedException() : CustomExceptions(HttpStatusCode.BadRequest,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Quiz Not Completed",
+        "Quiz is not yet completed.");
 }

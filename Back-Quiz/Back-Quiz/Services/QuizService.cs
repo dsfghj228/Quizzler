@@ -3,12 +3,12 @@ using Back_Quiz.Dtos.Quiz;
 using Back_Quiz.Enums;
 using Back_Quiz.Exceptions;
 using Back_Quiz.Interfaces;
+using Back_Quiz.Models;
 using Back_Quiz.Quiz;
 using Microsoft.EntityFrameworkCore;
 
 namespace Back_Quiz.Services;
 
-//СДЕЛАТЬ РЕФАКТОРИНГ ПОВТОРЯЮЩЕГОСЯ КОДА В GETCURRENTQUESTIONASYNC И MAKEMOVEASYNC
 public class QuizService : IQuizService
 {
     private readonly IRedisService _redisService;
@@ -224,5 +224,81 @@ public class QuizService : IQuizService
         {
             await _redisService.ReleaseLockAsync(lockKey, token);
         }
+    }
+    
+    public async Task<QuizResultDto> FinishQuizAsync(string sessionId, string userId)
+    {
+        var session = await _redisService.GetAsync<QuizSession>($"quiz:session:{sessionId}");
+        if (session == null || session.UserId != userId)
+        {
+            throw new CustomExceptions.AccessDeniedException();
+        }
+        
+        if (session.Answers.Count < session.QuestionIds.Count)
+        {
+            throw new CustomExceptions.QuizIsNotCompletedException();
+        }
+        
+        var elapsed = DateTime.UtcNow - session.StartedAt;
+        if (elapsed.TotalSeconds > session.TimeLimitSeconds)
+        {
+            throw new CustomExceptions.SessionExpiredException(sessionId);
+        }
+        
+        var existingResult = await _context.QuizResults
+            .AnyAsync(r => r.UserId == userId && r.SessionId == sessionId);
+        if (existingResult)
+        {
+            throw new CustomExceptions.QuizAlreadyCompletedException();
+        }
+
+        int correctAnswers = 0;
+        var questionsIds = session.QuestionIds
+            .Distinct()
+            .ToList();
+        
+        var questions = await _context.Questions
+            .Where(q => questionsIds.Contains(q.Id))
+            .Include(q => q.Options)
+            .AsNoTracking()
+            .ToDictionaryAsync(q => q.Id);
+        
+        foreach(var answer in session.Answers)
+        {
+           if(!questions.TryGetValue(answer.QuestionId, out var question))
+               continue;
+
+           if (question.Options.Any(o => o.Id == answer.SelectedOptionId && o.IsCorrect))
+           {
+               correctAnswers++;
+           }
+        }
+
+        var result = new QuizResult
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SessionId = sessionId,
+            CorrectAnswers = correctAnswers,
+            TotalQuestions = session.QuestionIds.Count,
+            CompletedAt = DateTime.UtcNow
+        };
+        
+        await _context.QuizResults.AddAsync(result);
+        await _context.SaveChangesAsync();
+        
+        var resultDto = new QuizResultDto
+        {
+            ResultId = result.Id,
+            UserId = result.UserId,
+            SessionId = result.SessionId,
+            CorrectAnswers = result.CorrectAnswers,
+            TotalQuestions = result.TotalQuestions,
+            CompletedAt = result.CompletedAt
+        };
+
+        await _redisService.RemoveAsync($"quiz:session:{sessionId}");
+        
+        return resultDto;
     }
 }
