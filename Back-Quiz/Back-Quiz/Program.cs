@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,32 +30,7 @@ builder.Services.AddControllers()
 builder.Services.AddProblemDetails(options =>
 {
     options.IncludeExceptionDetails = (_, _) => false;
-    
-    options.Map<CustomExceptions.UserAlreadyExistsException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.InternalServerErrorException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.UnauthorizedUsernameException>(ex => new ProblemDetails
-    {
-        Type = ex.Type,
-        Title = ex.Title,
-        Status = (int)ex.StatusCode,
-        Detail = ex.Message
-    });
-    
-    options.Map<CustomExceptions.UnauthorizedPasswordException>(ex => new ProblemDetails
+    options.Map<CustomExceptions>(ex => new ProblemDetails
     {
         Type = ex.Type,
         Title = ex.Title,
@@ -96,6 +72,12 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"));
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "BackQuiz";
 });
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
@@ -142,9 +124,16 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 });
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+builder.Services.AddScoped<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+
 builder.Services.AddScoped<IImportDataService, ImportDataService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IRedisService, RedisService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+
 
 var app = builder.Build();
 
@@ -168,6 +157,7 @@ app.UseAuthorization();
 
 app.UseProblemDetails();
 app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 

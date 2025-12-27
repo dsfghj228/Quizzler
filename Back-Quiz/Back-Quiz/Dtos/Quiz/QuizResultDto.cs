@@ -1,12 +1,12 @@
-namespace Back_Quiz.Models;
+namespace Back_Quiz.Dtos.Quiz;
 
-public class QuizResult
+public class QuizResultDto
 {
-    public Guid Id { get; set; }
+    public Guid ResultId { get; set; }
     public string UserId { get; set; }
-    public AppUser User { get; set; }
     public string SessionId { get; set; }
     public int CorrectAnswers { get; set; }
     public int TotalQuestions { get; set; }
     public DateTime CompletedAt { get; set; }
+    
 }

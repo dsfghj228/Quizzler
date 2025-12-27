@@ -3,6 +3,7 @@ using System;
 using Back_Quiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Back_Quiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220174251_CorrectDb")]
+    partial class CorrectDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,9 +146,8 @@ namespace Back_Quiz.Migrations
                     b.Property<int>("CorrectAnswers")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SessionId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("QuizTemplateId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("TotalQuestions")
                         .HasColumnType("integer");
@@ -156,9 +158,39 @@ namespace Back_Quiz.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuizTemplateId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("QuizResults");
+                });
+
+            modelBuilder.Entity("Back_Quiz.Models.QuizTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("QuestionCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TimeLimitSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizTemplates");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -306,11 +338,19 @@ namespace Back_Quiz.Migrations
 
             modelBuilder.Entity("Back_Quiz.Models.QuizResult", b =>
                 {
+                    b.HasOne("Back_Quiz.Models.QuizTemplate", "QuizTemplate")
+                        .WithMany()
+                        .HasForeignKey("QuizTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Back_Quiz.Models.AppUser", "User")
                         .WithMany("QuizResults")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("QuizTemplate");
 
                     b.Navigation("User");
                 });
