@@ -83,4 +83,9 @@ public abstract class CustomExceptions: Exception
         "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         "Quiz Not Completed",
         "Quiz is not yet completed.");
+    
+    public class ResultNotFoundException(string id) : CustomExceptions(HttpStatusCode.NotFound,
+        "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+        "Result not found",
+        $"Result of the session with ID @{id} was not found.");
 }

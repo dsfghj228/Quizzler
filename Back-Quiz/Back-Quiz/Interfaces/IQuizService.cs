@@ -10,4 +10,5 @@ public interface IQuizService
     Task<StartQuizResponse> GetCurrentQuestionAsync(string sessionId, string userId);
     Task<StartQuizResponse> MakeMoveAsync(string sessionId, string userId, Guid selectedOptionId);
     Task<QuizResultDto> FinishQuizAsync(string sessionId, string userId);
+    Task<QuizResultDto> ReturnResults(string sessionId, string userId);
 }

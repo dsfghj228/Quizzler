@@ -93,4 +93,21 @@ public class QuizController : ControllerBase
         var result = await _mediator.Send(command);
         return Ok(result);
     }
+    
+    [HttpGet("{sessionId}/result")]
+    public async Task<IActionResult> ReturnResults([FromRoute] string sessionId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            throw new CustomExceptions.UnauthorizedUsernameException();
+        
+        var query = new GetQuizResultQuery
+        {
+            SessionId = sessionId,
+            UserId = userId
+        };
+        
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 }

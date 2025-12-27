@@ -301,4 +301,28 @@ public class QuizService : IQuizService
         
         return resultDto;
     }
+
+    public async Task<QuizResultDto> ReturnResults(string sessionId, string userId)
+    {
+        var result = await _context.QuizResults
+            .Where(r => r.UserId == userId && r.SessionId == sessionId)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+        if (result == null)
+        {
+            throw new CustomExceptions.ResultNotFoundException(sessionId);
+        }
+
+        var resultDto = new QuizResultDto
+        {
+            ResultId = result.Id,
+            UserId = result.UserId,
+            SessionId = result.SessionId,
+            CorrectAnswers = result.CorrectAnswers,
+            TotalQuestions = result.TotalQuestions,
+            CompletedAt = result.CompletedAt
+        };
+        
+        return resultDto;
+    }
 }
