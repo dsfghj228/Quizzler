@@ -310,7 +310,7 @@ public class QuizService : IQuizService
             .FirstOrDefaultAsync();
         if (result == null)
         {
-            throw new CustomExceptions.ResultNotFoundException(sessionId);
+            throw new CustomExceptions.ResultNotFoundException();
         }
 
         var resultDto = new QuizResultDto

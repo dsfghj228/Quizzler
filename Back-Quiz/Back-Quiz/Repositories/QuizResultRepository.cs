@@ -1,4 +1,5 @@
 using Back_Quiz.Data;
+using Back_Quiz.Exceptions;
 using Back_Quiz.Interfaces;
 using Back_Quiz.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,5 +23,20 @@ public class QuizResultRepository : IQuizResultRepository
             .ToListAsync();
         
         return results;
+    }
+
+    public async Task<QuizResult> GetQuizResultById(string userId, Guid quizId)
+    {
+        var result = await _context.QuizResults
+            .Where(q => q.UserId == userId && q.Id == quizId)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (result == null)
+        {
+            throw new CustomExceptions.ResultNotFoundException();
+        }
+        
+        return result;
     }
 }
