@@ -5,6 +5,7 @@ using Back_Quiz.Exceptions;
 using Back_Quiz.FluentValidation;
 using Back_Quiz.Interfaces;
 using Back_Quiz.Models;
+using Back_Quiz.Repositories;
 using Back_Quiz.Services;
 using FluentValidation;
 using Hangfire;
@@ -133,6 +134,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRedisService, RedisService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuizResultRepository, QuizResultRepository>();
 
 
 var app = builder.Build();
