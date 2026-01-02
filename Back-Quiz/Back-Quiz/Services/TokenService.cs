@@ -5,6 +5,7 @@ using System.Text;
 using Back_Quiz.Data;
 using Back_Quiz.Interfaces;
 using Back_Quiz.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Back_Quiz.Services;
@@ -91,7 +92,32 @@ public class TokenService : ITokenService
                 HttpOnly = true,
                 IsEssential = true,
                 Secure = true,
-                SameSite = SameSiteMode.None,
+                SameSite = SameSiteMode.None
             });
+    }
+
+    public async Task LogoutAsync(HttpContext context)
+    {
+        if (context.Request.Cookies.TryGetValue("refresh_token", out var token))
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+            var tokenHash = Convert.ToBase64String(bytes);
+            
+            var refreshToken = await _db.RefreshTokens
+                .FirstOrDefaultAsync(t => t.Token == tokenHash && t.RevokedAt == null);
+            if (refreshToken != null)
+            {
+                refreshToken.RevokedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
+            context.Response.Cookies.Delete("refresh_token", new CookieOptions
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
+        }
     }
 }
