@@ -37,7 +37,7 @@ public class RegisterNewUserCommandHandler : IRequestHandler<RegisterNewUserComm
             {
                 UserName = appUser.UserName,
                 Email = appUser.Email,
-                Token = _tokenService.GenerateToken(appUser)
+                Token = _tokenService.GenerateAccessToken(appUser)
             };
         }else
         {

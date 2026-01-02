@@ -10,10 +10,10 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
     }
     
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionOption> QuestionOptions { get; set; }
     public DbSet<QuizResult> QuizResults { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +30,8 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithOne(q => q.User)
             .HasForeignKey(q => q.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<RefreshToken>()
+            .HasKey(t => t.Token);
     }
-    
 }
