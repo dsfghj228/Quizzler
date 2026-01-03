@@ -1,6 +1,12 @@
 import Cookies from "js-cookie";
-import { loginRequest, loginResponse } from "../types/apiAuth.types";
+import {
+  loginRequest,
+  loginResponse,
+  registerRequest,
+} from "../types/apiAuth.types";
 import { api } from "./axios";
+
+//////////////////////////AUTHENTICATION///////////////////////////////
 
 export const login = async (data: loginRequest): Promise<loginResponse> => {
   try {
@@ -10,6 +16,15 @@ export const login = async (data: loginRequest): Promise<loginResponse> => {
       expires: fifteenMinutes,
     });
     return response.data;
+  } catch (error: any) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const register = async (data: registerRequest): Promise<void> => {
+  try {
+    await api.post<void>("/account/register", data);
   } catch (error: any) {
     console.error(error.response?.data || error.message);
     throw error;
