@@ -9,11 +9,17 @@ function Home() {
       style={{ backgroundImage: `url(${HomeSvg})` }}
     >
       <div className="flex flex-col items-center">
-        <h1 className="font-semibold text-9xl">Quizzler</h1>
+        <h1 className="font-semibold text-7xl md:text-9xl">Quizzler</h1>
         <Link to="/quiz/start">
           <div className="flex pt-5">
-            <p className="text-2xl hover:underline">Let’s start the quiz</p>
-            <img className="h-[36px] w-[42px]  pt-2" src={Arrow} alt="Arrow" />
+            <p className="text-xl md:text-2xl hover:underline">
+              Let’s start the quiz
+            </p>
+            <img
+              className="h-[36px] w-[42px] pt-1 md:pt-2"
+              src={Arrow}
+              alt="Arrow"
+            />
           </div>
         </Link>
       </div>
