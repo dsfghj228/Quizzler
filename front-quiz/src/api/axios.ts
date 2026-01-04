@@ -9,6 +9,8 @@ let failedQueue: Array<{
   reject: (err: any) => void;
 }> = [];
 
+const authExcludedPaths = ["/login", "/register", "/refresh"];
+
 function processQueue(error: any, token: string | null = null) {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -40,7 +42,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRequest = authExcludedPaths.some((path) =>
+      originalRequest.url?.includes(path)
+    );
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRequest
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -59,7 +69,7 @@ api.interceptors.response.use(
 
         processQueue(null, newToken.accessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newToken.accessToken}`;
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);

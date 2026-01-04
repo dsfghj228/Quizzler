@@ -19,8 +19,7 @@ export const login = async (data: loginRequest): Promise<loginResponse> => {
     });
     return response.data;
   } catch (error: any) {
-    console.error(error.response?.data || error.message);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -28,8 +27,7 @@ export const register = async (data: registerRequest): Promise<void> => {
   try {
     await api.post<void>("/account/register", data);
   } catch (error: any) {
-    console.error(error.response?.data || error.message);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -38,7 +36,6 @@ export const refresh = async (): Promise<refreshResponse> => {
     var response = await api.post<refreshResponse>("/account/refresh");
     return response.data;
   } catch (error: any) {
-    console.error(error.response?.data || error.message);
     throw error;
   }
 };
@@ -48,7 +45,6 @@ export const logout = async (): Promise<void> => {
     await api.post<void>("/account/logout");
     Cookies.remove("access_token");
   } catch (error: any) {
-    console.error(error.response?.data || error.message);
     throw error;
   }
 };
@@ -61,7 +57,6 @@ export const getUsersResults = async (): Promise<getUsersResultsResponse> => {
 
     return response.data;
   } catch (error: any) {
-    console.error(error.response?.data || error.message);
     throw error;
   }
 };

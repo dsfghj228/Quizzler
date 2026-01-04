@@ -18,3 +18,12 @@ export interface registerRequest {
 export interface refreshResponse {
   accessToken: string;
 }
+
+export type validationLoginErrors = {
+  username: string;
+  password: string;
+};
+
+export type validationRegisterErrors = validationLoginErrors & {
+  email: string;
+};

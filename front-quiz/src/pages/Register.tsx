@@ -1,9 +1,11 @@
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/api";
 import AuthBg from "../assets/images/AuthBg.svg";
 import Eye from "../assets/images/Eye.svg";
 import Eyeoff from "../assets/images/Eyeoff.svg";
+import { validationRegisterErrors } from "../types/apiAuth.types";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -11,16 +13,63 @@ function Register() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<validationRegisterErrors>({
+    password: "",
+    email: "",
+    username: "",
+  });
   const navigate = useNavigate();
 
+  const validationErrors = (): boolean => {
+    const newErrors: validationRegisterErrors = {
+      password: "",
+      email: "",
+      username: "",
+    };
+
+    if (!username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password =
+        "Password must contain at least one uppercase letter";
+    } else if (!/[a-z]/.test(password)) {
+      newErrors.password =
+        "Password must contain at least one lowercase letter";
+      return false;
+    } else if (!/[0-9]/.test(password)) {
+      newErrors.password = "Password must contain at least one digit";
+    } else if (!/[^a-zA-Z0-9]/.test(password)) {
+      newErrors.password =
+        "Password must contain at least one non-alphanumeric character";
+    }
+
+    if (
+      newErrors.password === "" &&
+      newErrors.username === "" &&
+      newErrors.email === ""
+    ) {
+      return true;
+    }
+
+    setErrors(newErrors);
+    return false;
+  };
+
   const handleRegister = async () => {
+    if (!validationErrors()) return;
+
     setLoading(true);
     try {
-      const response = await register({ username, email, password });
-      console.log(response);
+      await register({ username, email, password });
       navigate("/login", { replace: true });
-    } catch (err) {
-      alert("Register failed");
+    } catch (err: any) {
+      toast.error(err || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -28,6 +77,7 @@ function Register() {
 
   return (
     <div className="bg-[#E5E5E5] flex items-center justify-center bg-center bg-no-repeat bg-cover h-screen w-screen">
+      <Toaster position="top-center" />
       <div className="flex items-center justify-center lg:justify-between w-full max-w-[500px] lg:max-w-[1000px] h-full max-h-[750px] bg-white sm:rounded-[20px] lg:p-[50px] p-[20px]">
         <div>
           <div className="flex flex-col items-center mb-[47px]">
@@ -37,7 +87,7 @@ function Register() {
             </h1>
           </div>
           <div>
-            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] mb-[25px] rounded-[5px]">
+            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] rounded-[5px]">
               <label className="text-[#616161] text-sm font-medium pb-[5px]">
                 Username
               </label>
@@ -50,7 +100,12 @@ function Register() {
                 className="bg-[#F5F5F5] text-[#212121] text-lg font-normal focus:outline-none focus:ring-0 h-[30px] w-[200px]"
               />
             </div>
-            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] mb-[25px] rounded-[5px]">
+            <div className="h-[25px] w-[360px] flex items-center justify-center">
+              {errors.username && (
+                <p className="text-red-500 text-sm">{errors.username}</p>
+              )}
+            </div>
+            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] rounded-[5px]">
               <label className="text-[#616161] text-sm font-medium pb-[5px]">
                 Email
               </label>
@@ -63,7 +118,12 @@ function Register() {
                 className="bg-[#F5F5F5] text-[#212121] text-lg font-normal focus:outline-none focus:ring-0 h-[30px] w-[300px]"
               />
             </div>
-            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] mb-[25px] rounded-[5px]">
+            <div className="h-[25px] w-[360px] flex items-center justify-center">
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email}</p>
+              )}
+            </div>
+            <div className="flex flex-col bg-[#F5F5F5] h-[67px] w-[360px] py-[10px] px-[15px] rounded-[5px]">
               <label className="text-[#616161] text-sm font-medium pb-[5px]">
                 Password
               </label>
@@ -93,6 +153,11 @@ function Register() {
                   )}
                 </button>
               </div>
+            </div>
+            <div className="h-[50px] w-[360px] flex items-center justify-center">
+              {errors.password && (
+                <p className="text-red-500 text-sm">{errors.password}</p>
+              )}
             </div>
           </div>
           <button
