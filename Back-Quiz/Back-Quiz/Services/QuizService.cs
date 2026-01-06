@@ -75,7 +75,9 @@ public class QuizService : IQuizService
         return new StartQuizResponse
         {
             SessionId = sessionId,
-            Question = questionDto
+            Question = questionDto,
+            QuestionNumber = 1,
+            TotalQuestions = questionsIds.Count
         };
     }
 
@@ -117,7 +119,9 @@ public class QuizService : IQuizService
         return new StartQuizResponse
         {
             SessionId = sessionId,
-            Question = questionDto
+            Question = questionDto,
+            QuestionNumber = session.CurrentIndex + 1,
+            TotalQuestions = session.QuestionIds.Count
         };
     }
 
@@ -188,7 +192,9 @@ public class QuizService : IQuizService
                 return new StartQuizResponse
                 {
                     SessionId = sessionId,
-                    Question = null
+                    Question = null,
+                    QuestionNumber = null,
+                    TotalQuestions = null
                 };
             }
 
@@ -217,7 +223,9 @@ public class QuizService : IQuizService
             return new StartQuizResponse
             {
                 SessionId = sessionId,
-                Question = nextQuestionDto
+                Question = nextQuestionDto,
+                QuestionNumber = session.CurrentIndex + 1,
+                TotalQuestions = session.QuestionIds.Count
             };
         }
         finally

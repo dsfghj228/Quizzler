@@ -86,6 +86,37 @@ export const getCurrentQuestion = async (
   }
 };
 
+export const makeMove = async (
+  sessionId: string,
+  optionId: string
+): Promise<quizResponse> => {
+  try {
+    var response = await api.post<quizResponse>(
+      `/quiz/${sessionId}/answer`,
+      JSON.stringify(optionId),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
+  }
+};
+
+export const finishQuiz = async (sessionId: string): Promise<quizResponse> => {
+  try {
+    var response = await api.post<quizResponse>(`/quiz/${sessionId}/finish`);
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
+  }
+};
+
 //////////////////////////QUIZ-RESULT///////////////////////////////
 
 export const getUsersResults = async (): Promise<getUsersResultsResponse> => {

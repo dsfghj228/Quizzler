@@ -13,6 +13,8 @@ export type question = {
 export interface quizResponse {
   sessionId: string;
   question: question;
+  questionNumber: number | null;
+  totalQuestions: number | null;
 }
 
 export interface startQuizRequest {

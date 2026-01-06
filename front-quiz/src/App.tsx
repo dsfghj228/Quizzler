@@ -20,10 +20,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/quiz/start" element={<Start />} />
-          <Route
-            path="/quiz/:sessionId/:questionIndex"
-            element={<Question />}
-          />
+          <Route path="/quiz/:sessionId" element={<Question />} />
         </Route>
       </Routes>
     </BrowserRouter>
