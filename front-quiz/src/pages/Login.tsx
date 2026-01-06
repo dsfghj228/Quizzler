@@ -55,7 +55,7 @@ function Login() {
     setLoading(true);
     try {
       await login({ username, password });
-      navigate("/quiz/start", { replace: true });
+      navigate("/profile", { replace: true });
     } catch (err: any) {
       toast.error(err || "Login failed");
     } finally {

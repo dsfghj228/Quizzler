@@ -42,7 +42,7 @@ function Start() {
       console.log(data);
       var res = await startQuiz(data);
       console.log(res);
-      navigate(`/quiz/${res.sessionId}`);
+      navigate(`/quiz/${res.sessionId}/1`);
     } catch (error: any) {
       toast(error || "Unsuccessful attempt to start the game");
     }

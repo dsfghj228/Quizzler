@@ -74,6 +74,18 @@ export const startQuiz = async (
   }
 };
 
+export const getCurrentQuestion = async (
+  sessionId: string
+): Promise<quizResponse> => {
+  try {
+    var response = await api.get<quizResponse>(`/quiz/${sessionId}/current`);
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
+  }
+};
+
 //////////////////////////QUIZ-RESULT///////////////////////////////
 
 export const getUsersResults = async (): Promise<getUsersResultsResponse> => {
