@@ -5,6 +5,7 @@ import {
   refreshResponse,
   registerRequest,
 } from "../types/apiAuth.types";
+import { quizResponse, startQuizRequest } from "../types/quiz.types";
 import { getUsersResultsResponse } from "../types/quizResult.types";
 import { api } from "./axios";
 
@@ -46,6 +47,30 @@ export const logout = async (): Promise<void> => {
     Cookies.remove("access_token");
   } catch (error: any) {
     throw error;
+  }
+};
+
+//////////////////////////QUIZ//////////////////////////////////////
+
+export const getCategories = async (): Promise<Array<string>> => {
+  try {
+    var response = await api.get<Array<string>>("/quiz/categories");
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
+  }
+};
+
+export const startQuiz = async (
+  data: startQuizRequest
+): Promise<quizResponse> => {
+  try {
+    var response = await api.post<quizResponse>("/quiz/start", data);
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
   }
 };
 

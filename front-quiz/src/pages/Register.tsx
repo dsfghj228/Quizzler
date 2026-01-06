@@ -94,7 +94,10 @@ function Register() {
               <input
                 id="username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setErrors((prev) => ({ ...prev, username: "" }));
+                }}
                 disabled={loading}
                 placeholder="Enter username"
                 className="bg-[#F5F5F5] text-[#212121] text-lg font-normal focus:outline-none focus:ring-0 h-[30px] w-[200px]"
@@ -112,7 +115,10 @@ function Register() {
               <input
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((prev) => ({ ...prev, email: "" }));
+                }}
                 disabled={loading}
                 placeholder="Enter email"
                 className="bg-[#F5F5F5] text-[#212121] text-lg font-normal focus:outline-none focus:ring-0 h-[30px] w-[300px]"
@@ -132,7 +138,10 @@ function Register() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
                   disabled={loading}
                   placeholder="Enter password"
                   className="bg-[#F5F5F5] text-[#212121] text-lg font-normal focus:outline-none focus:ring-0 h-[30px] w-[200px]"
