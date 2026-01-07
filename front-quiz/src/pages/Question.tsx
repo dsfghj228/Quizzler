@@ -42,34 +42,15 @@ function Question() {
     }
 
     try {
-      console.log(selectedOptionId);
       await makeMove(sessionId, selectedOptionId);
       if (question?.questionNumber === question?.totalQuestions) {
-        navigate(`quiz${sessionId}/results`, { replace: true });
+        await finishQuiz(sessionId);
+        navigate(`/quiz/${sessionId}/results`, { replace: true });
       } else {
         await fetchQuestion();
       }
     } catch (error: any) {
       toast.error(error || "Couldn`t make move");
-    }
-  };
-
-  const finish = async () => {
-    if (!selectedOptionId) {
-      toast.error("Please, select an option");
-      return;
-    }
-
-    if (!sessionId) {
-      toast.error("Couldn't get session id");
-      return;
-    }
-
-    try {
-      await finishQuiz(sessionId);
-      navigate(`quiz/results/${sessionId}`);
-    } catch (error: any) {
-      toast.error(error || "Couldn`t finish quiz");
     }
   };
 

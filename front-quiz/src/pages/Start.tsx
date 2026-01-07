@@ -39,9 +39,7 @@ function Start() {
         numberOfQuestions: amount,
       };
 
-      console.log(data);
       var res = await startQuiz(data);
-      console.log(res);
       navigate(`/quiz/${res.sessionId}`, { replace: true });
     } catch (error: any) {
       toast(error || "Unsuccessful attempt to start the game");

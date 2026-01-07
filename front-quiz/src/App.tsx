@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Finish from "./pages/Finish";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Question from "./pages/Question";
@@ -21,6 +22,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/quiz/start" element={<Start />} />
           <Route path="/quiz/:sessionId" element={<Question />} />
+          <Route path="/quiz/:sessionId/results" element={<Finish />} />
         </Route>
       </Routes>
     </BrowserRouter>

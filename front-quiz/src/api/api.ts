@@ -5,7 +5,11 @@ import {
   refreshResponse,
   registerRequest,
 } from "../types/apiAuth.types";
-import { quizResponse, startQuizRequest } from "../types/quiz.types";
+import {
+  finishQuizResponse,
+  quizResponse,
+  startQuizRequest,
+} from "../types/quiz.types";
 import { getUsersResultsResponse } from "../types/quizResult.types";
 import { api } from "./axios";
 
@@ -107,9 +111,27 @@ export const makeMove = async (
   }
 };
 
-export const finishQuiz = async (sessionId: string): Promise<quizResponse> => {
+export const finishQuiz = async (
+  sessionId: string
+): Promise<finishQuizResponse> => {
   try {
-    var response = await api.post<quizResponse>(`/quiz/${sessionId}/finish`);
+    var response = await api.post<finishQuizResponse>(
+      `/quiz/${sessionId}/finish`
+    );
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message;
+  }
+};
+
+export const getQuizResultsBySessionId = async (
+  sessionId: string
+): Promise<finishQuizResponse> => {
+  try {
+    var response = await api.get<finishQuizResponse>(
+      `/quiz/${sessionId}/result`
+    );
 
     return response.data;
   } catch (error: any) {

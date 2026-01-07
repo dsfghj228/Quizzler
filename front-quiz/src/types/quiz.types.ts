@@ -22,3 +22,12 @@ export interface startQuizRequest {
   difficulty: number;
   numberOfQuestions: number;
 }
+
+export interface finishQuizResponse {
+  resultId: string;
+  userId: string;
+  sessionId: string;
+  correctAnswers: number;
+  totalQuestions: number;
+  completedAt: string;
+}
