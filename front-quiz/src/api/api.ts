@@ -10,7 +10,7 @@ import {
   quizResponse,
   startQuizRequest,
 } from "../types/quiz.types";
-import { getUsersResultsResponse } from "../types/quizResult.types";
+import { GetUsersResultsResponse } from "../types/quizResult.types";
 import { api } from "./axios";
 
 //////////////////////////AUTHENTICATION///////////////////////////////
@@ -141,9 +141,9 @@ export const getQuizResultsBySessionId = async (
 
 //////////////////////////QUIZ-RESULT///////////////////////////////
 
-export const getUsersResults = async (): Promise<getUsersResultsResponse> => {
+export const getUsersResults = async (): Promise<GetUsersResultsResponse> => {
   try {
-    var response = await api.get<getUsersResultsResponse>("/quiz-results");
+    var response = await api.get<GetUsersResultsResponse>("/quiz-results");
 
     return response.data;
   } catch (error: any) {

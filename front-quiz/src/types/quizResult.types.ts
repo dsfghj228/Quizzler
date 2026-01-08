@@ -7,6 +7,4 @@ type quizResult = {
   completedAt: string;
 };
 
-export interface getUsersResultsResponse {
-  res: Array<quizResult>;
-}
+export type GetUsersResultsResponse = quizResult[];

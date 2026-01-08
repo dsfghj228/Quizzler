@@ -55,7 +55,10 @@ function Login() {
     setLoading(true);
     try {
       await login({ username, password });
-      navigate("/profile", { replace: true });
+      toast.success("Successful log in");
+      setTimeout(() => {
+        navigate("/profile", { replace: true });
+      }, 1000);
     } catch (err: any) {
       toast.error(err || "Login failed");
     } finally {
@@ -137,7 +140,7 @@ function Login() {
             </div>
           </div>
           <button
-            onClick={handleLogin}
+            onClick={async () => await handleLogin()}
             className="w-[360px] h-[55px] bg-[#2F3538] rounded-[5px] text-[#FFFFFF] text-sm font-bold mb-[40px]"
             disabled={loading}
           >

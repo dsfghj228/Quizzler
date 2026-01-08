@@ -68,6 +68,7 @@ function Register() {
     try {
       await register({ username, email, password });
       navigate("/login", { replace: true });
+      toast.success("Successful registration");
     } catch (err: any) {
       toast.error(err || "Login failed");
     } finally {
