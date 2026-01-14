@@ -25,4 +25,4 @@ Cам проект будет доступен по адресу:
 - React
 - Typescript
 - Tailwind Css
-- Axios# Real-time-Multiplayer-Quiz
+- Axios
