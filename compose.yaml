@@ -1,0 +1,74 @@
+﻿services:
+  back-quiz:
+    image: back-quiz
+    build:
+      context: ./Back-Quiz/Back-Quiz
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=Quiz;Username=postgres;Password=1234567890
+      - ConnectionStrings__RedisConnection=redis:6379
+      - Jwt__SigningKey=fjKLFJdjkfjsfijfijskljfklsj323782dkjslfhrknjfkjsjhefjks53rj4jkjlf3o4jkjkkey32_fjkjlsfjlskjflerlsjfejiejsjkd993490
+      - Jwt__Issuer=http://0.0.0.0:8081
+      - Jwt__Audience=http://0.0.0.0:8081
+      - ASPNETCORE_URLS=http://+:8081
+    depends_on:
+        db:
+            condition: service_healthy
+        redis:
+            condition: service_healthy
+    networks:
+      - quiz-network
+  
+  frontend:
+    build:
+      context: ./front-quiz
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - back-quiz
+    networks:
+      - quiz-network
+  
+  db:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234567890
+      POSTGRES_DB: Quiz
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - quiz-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  quiz-network:

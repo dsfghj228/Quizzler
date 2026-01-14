@@ -153,6 +153,12 @@ builder.Services.AddScoped<IQuizResultRepository, QuizResultRepository>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 app.UseHangfireDashboard();
 
 RecurringJob.AddOrUpdate<IImportDataService>(
@@ -161,7 +167,7 @@ RecurringJob.AddOrUpdate<IImportDataService>(
     Cron.Minutely
 );
 
-if (app.Environment.IsDevelopment())
+if (true)
 {
     app.UseSwagger();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("v1/swagger.json", "Quiz V1"));
@@ -174,7 +180,7 @@ app.UseCors(x => x
     .SetIsOriginAllowed(origin => true)
 );
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
